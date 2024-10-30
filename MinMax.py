@@ -1,8 +1,8 @@
 import random
 
 # Constants for players
-PLAYER_X = 'X'
-PLAYER_O = 'O'
+PLAYER_X = 'X'  # User
+PLAYER_O = 'O'  # Computer
 EMPTY = ' '
 
 # Function to create an empty board
@@ -17,7 +17,6 @@ def display_board(board):
 
 # Check for a winner
 def check_winner(board):
-    # Check rows, columns, and diagonals
     lines = (
         board +  # rows
         [[board[i][j] for i in range(3)] for j in range(3)] +  # columns
@@ -38,9 +37,9 @@ def is_board_full(board):
 def minimax(board, depth, is_maximizing):
     winner = check_winner(board)
     if winner == PLAYER_X:
-        return -10
+        return -10 + depth
     elif winner == PLAYER_O:
-        return 10
+        return 10 - depth
     elif is_board_full(board):
         return 0
     
@@ -82,33 +81,45 @@ def find_best_move(board):
                     
     return best_move
 
+# Function for the user's turn
+def user_move(board):
+    while True:
+        try:
+            move = input("Enter your move (row and column) as 'row,col' (0-indexed): ")
+            row, col = map(int, move.split(","))
+            if board[row][col] == EMPTY:
+                return row, col
+            else:
+                print("That position is already taken. Try again.")
+        except (ValueError, IndexError):
+            print("Invalid input. Please enter row and column as 'row,col'.")
+
 # Main game loop
 def play_game():
     board = create_board()
-    current_player = PLAYER_X  # Start with X
+    current_player = PLAYER_X  # Start with User (X)
     
     while True:
         display_board(board)
         if current_player == PLAYER_X:
-            print("Player X's turn (random move):")
-            move = random.choice([(i, j) for i in range(3) for j in range(3) if board[i][j] == EMPTY])
+            print("Player X's turn (Your move):")
+            move = user_move(board)
         else:
             print("Player O's turn (AI move):")
             move = find_best_move(board)
         
-        if move != (-1, -1):
-            board[move[0]][move[1]] = current_player
-            winner = check_winner(board)
-            if winner:
-                display_board(board)
-                print(f"Player {winner} wins!")
-                break
-            if is_board_full(board):
-                display_board(board)
-                print("It's a tie!")
-                break
-            current_player = PLAYER_X if current_player == PLAYER_O else PLAYER_O
+        board[move[0]][move[1]] = current_player
+        winner = check_winner(board)
+        if winner:
+            display_board(board)
+            print(f"Player {winner} wins!")
+            break
+        if is_board_full(board):
+            display_board(board)
+            print("It's a tie!")
+            break
+        current_player = PLAYER_X if current_player == PLAYER_O else PLAYER_O
 
-# Run the game simulation
+# Run the game
 if __name__ == "__main__":
     play_game()
